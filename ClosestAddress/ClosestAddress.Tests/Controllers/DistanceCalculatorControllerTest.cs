@@ -13,7 +13,7 @@ namespace ClosestAddress.Tests.Controllers
         public void GetAddress_ShouldReturnResult()
         {
             DistanceCalculatorController controller = new DistanceCalculatorController();
-            List<Address> result = controller.Get("37 Sharp Street, Newtown VIC 3220");
+            List<Address> result = controller.Get(Constants.ADDRESSINPUT);
             Assert.IsNotNull(result);
         }
 
@@ -21,7 +21,7 @@ namespace ClosestAddress.Tests.Controllers
         public void GetAddress_ShouldReturnFiveResult()
         {
             DistanceCalculatorController controller = new DistanceCalculatorController();
-            List<Address> result = controller.Get("37 Sharp Street, Newtown VIC 3220");
+            List<Address> result = controller.Get(Constants.ADDRESSINPUT);
             Assert.Equals(result.Count, 5);
         }
 
@@ -29,7 +29,7 @@ namespace ClosestAddress.Tests.Controllers
         public void GetAddress_ShouldReturnNearestResult()
         {
             DistanceCalculatorController controller = new DistanceCalculatorController();
-            List<Address> result = controller.Get("37 Sharp Street, Newtown VIC 3220");
+            List<Address> result = controller.Get(Constants.ADDRESSINPUT);
             var expectedResult = result.OrderBy(x => x.KM);
             Assert.IsTrue(expectedResult.SequenceEqual(result));
         }
