@@ -1,0 +1,45 @@
+﻿@{
+    ViewBag.Title = "Closest Address";
+}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<h2>@ViewBag.Title.</h2>
+<h3>@ViewBag.Message</h3>
+
+<div>
+    <input type="text" value="" id="txtAddress"/><br />
+    <input type="button" value="Submit" id="btnSearch" />
+    <input type="text" id="txtresult" /><br />
+    <table >
+        <thead>
+            <tr>
+                <td>Address</td>
+                <td>KM</td>
+            </tr>
+        </thead>
+        <tbody id="tblResult">
+        </tbody>
+    </table>
+</div>
+
+<script type="text/javascript">
+    $('#btnSearch').click(function () {
+        var address = $('#txtAddress').val();
+        $.ajax({
+            type: "GET",
+            url: "/api/DistanceCalculator",
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            data: { originAddress: address },
+            async: "true",
+            success: function (data) {
+                $.each(data, function (key, item) {
+                    $('#tblResult').append('<tr><td>' + item.Name + '</td><td>' + item.KM + '</td></tr>')
+                });
+            },
+            error: function (response) {
+
+            }
+        });
+    });
+
+</script>
