@@ -5,7 +5,7 @@ using System.IO;
 using System.Net;
 using System.Web.Http;
 using System.Xml.Linq;
-
+using System.Linq;
 namespace ClosestAddress.Controllers
 {
     public class DistanceCalculatorController : ApiController
@@ -63,7 +63,7 @@ namespace ClosestAddress.Controllers
                     if (string.IsNullOrEmpty(km))
                     {
                         var list = km.Split(' ');
-                        if (list.Count() > 0 && !string.IsNullOrEmpty(list[0]))
+                        if (list.Length > 0 && !string.IsNullOrEmpty(list[0]))
                         {
                             var item = new Address();
                             item.KM = list[0];
