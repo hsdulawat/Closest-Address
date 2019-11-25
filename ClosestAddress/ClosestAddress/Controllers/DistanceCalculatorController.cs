@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Http;
 using System.Xml.Linq;
 
@@ -12,7 +13,46 @@ namespace ClosestAddress.Controllers
 {
     public class DistanceCalculatorController : ApiController
     {
-        private const string GoogleAPIKey = "AIzaSyBHLvlufM3Oy0neJhLs0dE6DSPUEHq6GLU";
+        private static string GoogleAPIKey = WebConfigurationManager.AppSettings["GoogleAPIKey"];
+
+        [HttpGet]
+        public List<Address> Get(string originAddress)
+        {
+            List<Address> addresses = new List<Address>();
+            try
+            {
+                var addressList = GetAllAddresses();
+                foreach (var destinationAddress in addressList)
+                {
+                    if (!string.IsNullOrEmpty(destinationAddress))
+                    {
+                        string km = GetLocation(originAddress, destinationAddress);
+                        if (!string.IsNullOrWhiteSpace(km))
+                        {
+                            var list = km.Split(' ');
+                            if (list.Length > 0 && !string.IsNullOrEmpty(list[0]))
+                            {
+                                var item = new Address
+                                {
+                                    KM = list[0],
+                                    Name = destinationAddress
+                                };
+                                addresses.Add(item);
+                            }
+                        }
+                    }
+                }
+                if (addresses.Count > 0)
+                {
+                    addresses = addresses.OrderBy(x => x.KM).Take(5).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWrite.LogError(ex);
+            }
+            return addresses;
+        }
         public IEnumerable<string> GetAllAddresses()
         {
             List<string> addressList = new List<string>();
@@ -71,43 +111,6 @@ namespace ClosestAddress.Controllers
             }
             return distanceInKM;
         }
-        [HttpGet]
-        public List<Address> Get(string originAddress)
-        {
-            List<Address> addresses = new List<Address>();
-            try
-            {
-                var addressList = GetAllAddresses();
-                foreach (var destinationAddress in addressList)
-                {
-                    if (!string.IsNullOrEmpty(destinationAddress))
-                    {
-                        string km = GetLocation(originAddress, destinationAddress);
-                        if (!string.IsNullOrWhiteSpace(km))
-                        {
-                            var list = km.Split(' ');
-                            if (list.Length > 0 && !string.IsNullOrEmpty(list[0]))
-                            {
-                                var item = new Address
-                                {
-                                    KM = list[0],
-                                    Name = destinationAddress
-                                };
-                                addresses.Add(item);
-                            }
-                        }
-                    }
-                }
-                if (addresses.Count > 0)
-                {
-                    addresses = addresses.OrderBy(x => x.KM).Take(5).ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWrite.LogError(ex);
-            }
-            return addresses;
-        }
+        
     }
 }
