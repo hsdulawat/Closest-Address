@@ -34,7 +34,7 @@ namespace ClosestAddress.Controllers
             }
             catch (Exception ex)
             {
-                LogError(ex);
+                LogWrite.LogError(ex);
             }
             return addressList;
         }
@@ -53,7 +53,7 @@ namespace ClosestAddress.Controllers
                     var result = xdoc.Element("DistanceMatrixResponse").Element("row");
                     if (result != null)
                     {
-                        var locationElement = result.Element("distance");
+                        var locationElement = result.Element("element").Element("distance");
                         if (locationElement != null)
                         {
                             var distance = locationElement.Element("text").Value;
@@ -67,85 +67,47 @@ namespace ClosestAddress.Controllers
             }
             catch (Exception ex)
             {
-                LogError(ex);
+                LogWrite.LogError(ex);
             }
             return distanceInKM;
         }
-        //[HttpGet]
-        //public List<Address> Get(string originAddress)
-        //{
-        //    List<Address> addresses = new List<Address>();
-        //    try
-        //    {
-        //        var addressList = GetAllAddresses();
-        //        foreach (var destinationAddress in addressList)
-        //        {
-        //            if (!string.IsNullOrEmpty(destinationAddress))
-        //            {
-        //                string km = GetLocation(originAddress, destinationAddress);
-        //                if (!string.IsNullOrWhiteSpace(km))
-        //                {
-        //                    var list = km.Split(' ');
-        //                    if (list.Length > 0 && !string.IsNullOrEmpty(list[0]))
-        //                    {
-        //                        var item = new Address
-        //                        {
-        //                            KM = list[0],
-        //                            Name = destinationAddress
-        //                        };
-        //                        addresses.Add(item);
-        //                    }
-        //                }
-        //            }
-        //        }
-        //        if (addresses.Count > 0)
-        //        {
-        //            addresses = addresses.OrderBy(x => x.KM).Take(5).ToList();
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //        //Handle exception
-        //    }
-        //    return addresses;
-        //}
         [HttpGet]
         public List<Address> Get(string originAddress)
         {
             List<Address> addresses = new List<Address>();
-            var addressList = GetAllAddresses();
-            foreach (var destinationAddress in addressList)
+            try
             {
-                var item = new Address
+                var addressList = GetAllAddresses();
+                foreach (var destinationAddress in addressList)
                 {
-                    Name = destinationAddress
-                };
-                addresses.Add(item);
+                    if (!string.IsNullOrEmpty(destinationAddress))
+                    {
+                        string km = GetLocation(originAddress, destinationAddress);
+                        if (!string.IsNullOrWhiteSpace(km))
+                        {
+                            var list = km.Split(' ');
+                            if (list.Length > 0 && !string.IsNullOrEmpty(list[0]))
+                            {
+                                var item = new Address
+                                {
+                                    KM = list[0],
+                                    Name = destinationAddress
+                                };
+                                addresses.Add(item);
+                            }
+                        }
+                    }
+                }
+                if (addresses.Count > 0)
+                {
+                    addresses = addresses.OrderBy(x => x.KM).Take(5).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogWrite.LogError(ex);
             }
             return addresses;
-        }
-        private static void LogError(Exception ex)
-        {
-            string message = string.Format("Time: {0}", DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
-            message += Environment.NewLine;
-            message += "-----------------------------------------------------------";
-            message += Environment.NewLine;
-            message += string.Format("Message: {0}", ex.Message);
-            message += Environment.NewLine;
-            message += string.Format("StackTrace: {0}", ex.StackTrace);
-            message += Environment.NewLine;
-            message += string.Format("Source: {0}", ex.Source);
-            message += Environment.NewLine;
-            message += string.Format("TargetSite: {0}", ex.TargetSite.ToString());
-            message += Environment.NewLine;
-            message += "-----------------------------------------------------------";
-            message += Environment.NewLine;
-            string path = HttpContext.Current.Server.MapPath("~/Logs/Log.txt");
-            using (StreamWriter writer = new StreamWriter(path, true))
-            {
-                writer.WriteLine(message);
-                writer.Close();
-            }
         }
     }
 }

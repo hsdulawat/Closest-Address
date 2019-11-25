@@ -10,12 +10,16 @@
                 data: { originAddress: $('#txtAddress').val() },
                 async: "true",
                 success: function (data) {
-                    $("#tblAddressList").show();
-                    $.each(data,
-                        function (key, item) {
-                            $('#tblAddressResult')
-                                .append('<tr><td>' + item.Name + '</td><td>' + item.KM + '</td></tr>')
-                        });
+                    if (data.length > 0) {
+                        $("#tblAddressList").show();
+                        $.each(data,
+                            function(key, item) {
+                                $('#tblAddressResult')
+                                    .append('<tr><td>' + item.Name + '</td><td>' + item.KM + '</td></tr>');
+                            });
+                    } else {
+                        $('#errorMsg').show();
+                    }
                 },
                 error: function (response) {
                     console.log("response is not coming");
