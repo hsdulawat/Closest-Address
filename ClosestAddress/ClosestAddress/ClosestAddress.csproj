@@ -139,12 +139,15 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="BusinessLogic\BAL.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Controllers\ClosestAddressController.cs" />
     <Compile Include="Controllers\DistanceCalculatorController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helper\CacheHelper.cs" />
+    <Compile Include="Helper\DisposeBaseClass.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\LogWrite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -185,9 +188,6 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
-    <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\ClosestAddress\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>

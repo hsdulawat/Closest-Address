@@ -7,7 +7,7 @@
                 url: "/api/DistanceCalculator",
                 contentType: "application/json; charset=utf-8",
                 datatype: "json",
-                data: { originAddress: $('#txtAddress').val() },
+                data: { originAddress: $('#txtAddress').val() }, 
                 async: "true",
                 success: function (data) {
                     if (data.length > 0) {

@@ -1,74 +1,38 @@
-﻿using ClosestAddress.Models;
+﻿using ClosestAddress.BusinessLogic;
+using ClosestAddress.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Data;
 using System.Linq;
 using System.Net;
-using System.Web;
-using System.Web.Configuration;
 using System.Web.Http;
 using System.Xml.Linq;
 
 namespace ClosestAddress.Controllers
 {
+    /// <summary>
+    /// Web API for Geolocation address
+    /// </summary>
     public class DistanceCalculatorController : ApiController
     {
-        private static string GoogleAPIKey = WebConfigurationManager.AppSettings["GoogleAPIKey"];
-
+        /// <summary>
+        /// This WEB API will get the list of closest address with distance in kilometer.
+        /// </summary>
+        /// <param name="originAddress"></param>
+        /// <returns></returns>
         [HttpGet]
         public List<Address> Get(string originAddress)
         {
-            List<Address> addresses = new List<Address>();
+            List<Address> addressList = new List<Address>();
             try
             {
-                var addressList = GetAllAddresses();
-                foreach (var destinationAddress in addressList)
+                using (var balObj = new BAL())
                 {
-                    if (!string.IsNullOrEmpty(destinationAddress))
+                    //function call for get all the address from either in cache or CSV file. 
+                    addressList = balObj.GetAllAddresses();
+                    if (addressList.Count > 0)
                     {
-                        string km = GetLocation(originAddress, destinationAddress);
-                        if (!string.IsNullOrWhiteSpace(km))
-                        {
-                            var list = km.Split(' ');
-                            if (list.Length > 0 && !string.IsNullOrEmpty(list[0]))
-                            {
-                                var item = new Address
-                                {
-                                    KM = list[0],
-                                    Name = destinationAddress
-                                };
-                                addresses.Add(item);
-                            }
-                        }
-                    }
-                }
-                if (addresses.Count > 0)
-                {
-                    addresses = addresses.OrderBy(x => x.KM).Take(5).ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                LogWrite.LogError(ex);
-            }
-            return addresses;
-        }
-        public IEnumerable<string> GetAllAddresses()
-        {
-            List<string> addressList = new List<string>();
-            try
-            {
-                string csvPath = HttpContext.Current.Server.MapPath("~/CSV/Address_List_Australia.txt");
-                if (!string.IsNullOrWhiteSpace((csvPath)))
-                {
-                    using (var reader = new StreamReader(csvPath))
-                    {
-
-                        while (!reader.EndOfStream)
-                        {
-                            var line = reader.ReadLine();
-                            addressList.Add(line);
-                        }
+                        addressList = addressList.OrderBy(x => x.KM).Take(Convert.ToInt32(Constants.NumberOfAddress)).ToList();
                     }
                 }
             }
@@ -78,13 +42,68 @@ namespace ClosestAddress.Controllers
             }
             return addressList;
         }
-        public static string GetLocation(string originAddress, string destinationAddress)
+        /// <summary>
+        /// This WEB API will get the list of closest address with distance in kilometer, defined in a config file.
+        /// </summary>
+        /// <param name="originAddress"></param>
+        /// <returns></returns>
+        //[HttpGet]
+        //public List<Address> Get(string originAddress)
+        //{
+        //    List<Address> addresses = new List<Address>();
+        //    List<Address> addressList = new List<Address>();
+        //    try
+        //    {
+        //        using (var balObj = new BAL())
+        //        {
+        //            //function call for get all the address from either in cache or CSV file. 
+        //            addressList = balObj.GetAllAddresses();
+        //        }
+        //        foreach (var destinationAddress in addressList)
+        //        {
+        //            if (!string.IsNullOrEmpty(destinationAddress.Name))
+        //            {
+        //                //function call for getting the distance in kilometer between two address
+        //                string km = GetLocationDistance(originAddress, destinationAddress.Name);
+        //                if (!string.IsNullOrWhiteSpace(km))
+        //                {
+        //                    if (km.Split(' ').Length > 0 && !string.IsNullOrEmpty(km.Split(' ')[0]))
+        //                    {
+        //                        var item = new Address
+        //                        {
+        //                            KM = Convert.ToInt32(km.Split(' ')[0]),
+        //                            Name = destinationAddress.Name
+        //                        };
+        //                        addresses.Add(item);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        if (addresses.Count > 0)
+        //        {
+        //            addresses = addresses.OrderBy(x => x.KM).Take(Convert.ToInt32(Constants.NumberOfAddress)).ToList();
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        LogWrite.LogError(ex);
+        //    }
+        //    return addresses;
+        //}
+
+        /// <summary>
+        /// This method will find out the distance in kilometer between input and destination address via google API.
+        /// </summary>
+        /// <param name="Origin Address"></param>
+        /// <param name="Destination Address"></param>
+        /// <returns>Distance in kilometer</returns>
+        private string GetLocationDistance(string originAddress, string destinationAddress)
         {
             string distanceInKM = string.Empty;
             try
             {
-                var requestUri = string.Format("https://maps.googleapis.com/maps/api/distancematrix/xml?origins={0}&destinations={1}&key={2}",
-                Uri.EscapeDataString(originAddress), Uri.EscapeDataString(destinationAddress), GoogleAPIKey);
+                var requestUri = string.Format(Constants.GoogleAPIUrl + "?origins={0}&destinations={1}&key={2}",
+                Uri.EscapeDataString(originAddress), Uri.EscapeDataString(destinationAddress), Constants.GoogleAPIKey);
                 var request = WebRequest.Create(requestUri);
                 var response = request.GetResponse();
                 if (response != null)
@@ -111,6 +130,5 @@ namespace ClosestAddress.Controllers
             }
             return distanceInKM;
         }
-        
     }
 }
