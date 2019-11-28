@@ -32,7 +32,7 @@ namespace ClosestAddress.Controllers
                     addressList = balObj.GetAllAddresses();
                     if (addressList.Count > 0)
                     {
-                        addressList = addressList.OrderBy(x => x.KM).Take(Convert.ToInt32(Constants.NumberOfAddress)).ToList();
+                        addressList = addressList.OrderBy(x => x.KM).Take(Convert.ToInt32(Constants.NumberOfAddress != null ? Constants.NumberOfAddress : "4")).ToList();
                     }
                 }
             }

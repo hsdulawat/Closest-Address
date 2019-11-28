@@ -31,7 +31,15 @@ namespace ClosestAddress.BusinessLogic
                 }
                 if (!CacheHelper.Exists(cacheKeyName))
                 {
-                    string csvPath = HttpContext.Current.Server.MapPath(Constants.FileLocation);
+                    string csvPath = string.Empty;
+                    if (HttpContext.Current != null)
+                    {
+                        csvPath = HttpContext.Current.Server.MapPath(Constants.FileLocation);
+                    }
+                    else
+                    {
+                        csvPath = "D:\\Projects\\IsobarAssignment\\ClosestAddress\\ClosestAddress\\CSV\\Address_List_Australia.txt";
+                    }
                     if (!string.IsNullOrWhiteSpace((csvPath)))
                     {
                         using (StreamReader reader = new StreamReader(csvPath))

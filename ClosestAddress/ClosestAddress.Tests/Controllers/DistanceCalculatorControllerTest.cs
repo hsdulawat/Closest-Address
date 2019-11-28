@@ -22,7 +22,7 @@ namespace ClosestAddress.Tests.Controllers
         {
             DistanceCalculatorController controller = new DistanceCalculatorController();
             List<Address> result = controller.Get(Constants.ADDRESSINPUT);
-            Assert.Equals(result.Count, 5);
+            Assert.AreEqual(result.Count, 5);
         }
 
         [TestMethod]
